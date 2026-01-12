@@ -488,7 +488,8 @@
                     <div class="mt-8">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="text-lg font-semibold">Buy History</h3>
-                            <div class="flex items-center gap-2">
+                            <div id="history-action-buttons" class="flex items-center gap-2">
+                               <button id="copy-all-history-btn" class="btn-outline-accent p-2 rounded-lg text-sm flex items-center gap-1 hidden"><i data-lucide="copy-check" class="w-4 h-4"></i><span>Copy All</span></button>
                                <button id="copy-history-btn" class="btn-outline-accent p-2 rounded-lg text-sm flex items-center gap-1"><i data-lucide="copy" class="w-4 h-4"></i><span>Copy</span></button>
                                <button id="download-history-btn" class="btn-outline-accent p-2 rounded-lg text-sm flex items-center gap-1"><i data-lucide="download" class="w-4 h-4"></i><span>Download</span></button>
                             </div>
@@ -518,6 +519,7 @@
                 <p class="text-sm text-gray-600 text-center">নিচের তালিকা থেকে আপনার প্রয়োজনীয় ভিডিওটি দেখুন।</p>
                 <div id="tutorial-list" class="space-y-5"></div>
             </div>
+            
             <!-- =========== [UPDATED] PROFILE PAGE =========== -->
             <div id="profile-page" class="p-4 space-y-6 sub-page">
                 <div class="card-bg p-6 rounded-2xl flex flex-col items-center text-center">
@@ -529,22 +531,20 @@
                     <p id="profile-username" class="text-gray-500">@username</p>
                     <p id="profile-id" class="text-sm text-gray-600 mt-2">ID: 123456</p>
                 </div>
-                
-                <!-- NEW: Profile Mode Switcher -->
-                <div class="card-bg p-4 rounded-xl">
-                    <label class="block text-sm font-medium text-gray-600 mb-2 text-center">Profile Mode</label>
-                    <div class="profile-mode-switcher">
-                        <span class="glider"></span>
-                        <button id="personal-mode-btn">Personal</button>
-                        <button id="business-mode-btn">Business</button>
-                    </div>
-                    <p id="profile-switch-count" class="text-xs text-gray-500 text-center mt-2"></p>
-                </div>
-
 
                 <div class="space-y-3">
+                    <button id="bot-setting-btn" class="w-full card-bg p-4 rounded-xl flex justify-between items-center text-left text-lg font-semibold">
+                        <span class="flex items-center gap-3">
+                           <i data-lucide="sliders-horizontal" class="w-6 h-6 text-gray-600"></i>
+                           <span>BOT SETTING</span>
+                        </span>
+                        <i data-lucide="arrow-right" class="w-5 h-5 text-gray-400"></i>
+                    </button>
                     <button id="more-features-btn" class="w-full card-bg p-4 rounded-xl flex justify-between items-center text-left text-lg font-semibold">
-                        <span>⚡ More Features</span>
+                        <span class="flex items-center gap-3">
+                           <i data-lucide="zap" class="w-6 h-6 text-gray-600"></i>
+                           <span>More Features</span>
+                        </span>
                         <i data-lucide="arrow-right" class="w-5 h-5 text-gray-400"></i>
                     </button>
                     <button id="go-to-support-btn" class="w-full card-bg p-4 rounded-xl flex justify-between items-center text-left text-lg font-semibold">
@@ -556,11 +556,41 @@
                     </button>
                 </div>
 
-
                 <div class="text-center pt-6">
                      <p class="text-center text-gray-600 text-sm">Developed by <a href="https://t.me/bd_Storebot/Botshop" target="_blank" class="font-semibold text-[#007bff] hover:underline">𝐁𝐃 𝐒𝐓𝐎𝐑𝐄</a></p>
                 </div>
             </div>
+
+            <!-- =========== [NEW] BOT SETTING PAGE =========== -->
+            <div id="bot-setting-page" class="p-4 space-y-6 sub-page">
+                 <div class="relative flex items-center justify-center mb-4">
+                    <button onclick="navigateTo('profile-page')" class="absolute left-0 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <i data-lucide="arrow-left" class="w-6 h-6 text-gray-700"></i>
+                    </button>
+                    <h2 class="text-xl font-bold text-center text-gray-800">Bot Setting</h2>
+                </div>
+
+                <div class="card-bg p-4 rounded-xl">
+                    <label class="block text-sm font-medium text-gray-600 mb-2 text-center">Profile Mode</label>
+                    <div class="profile-mode-switcher">
+                        <span class="glider"></span>
+                        <button id="personal-mode-btn">Personal</button>
+                        <button id="business-mode-btn">Business</button>
+                    </div>
+                </div>
+
+                <div id="business-mode-rules" class="card-bg p-5 rounded-xl space-y-3 bg-blue-50 border-blue-200">
+                    <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2"><i data-lucide="info" class="w-5 h-5 text-blue-600"></i>Business Mode Rules</h3>
+                    <ul class="list-disc list-inside text-gray-700 text-sm space-y-2">
+                        <li>বিজনেস মোড চালু করতে আপনার অ্যাকাউন্টে কমপক্ষে <span class="font-bold text-blue-600">৳80</span> থাকতে হবে।</li>
+                        <li>এই মোড فعال রাখতে, আপনাকে প্রতিদিন কমপক্ষে <span class="font-bold text-blue-600">৳20</span> মূল্যের মেইল কিনতে হবে।</li>
+                        <li>যদি একদিনও ৳20-র কেনাকাটা না করেন, তবে আপনার অ্যাকাউন্ট থেকে <span class="font-bold text-red-600">৳5</span> কেটে নেওয়া হবে এবং মোড স্বয়ংক্রিয়ভাবে পার্সোনাল হয়ে যাবে।</li>
+                        <li>বিজনেস মোডে আপনি একসাথে সব হিস্ট্রি কপি করার মতো বিশেষ সুবিধা পাবেন।</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- =========== END OF BOT SETTING PAGE =========== -->
+
 
             <div id="features-page" class="p-4 space-y-8 sub-page">
                 <div class="grid grid-cols-2 gap-4 text-center">
@@ -835,13 +865,19 @@
         let appConfig = {};
         let insufficientBalanceInterval = null;
         let countdownInterval = null;
-        // NEW: State for profile mode
         let currentProfileMode = 'personal'; 
-        const MAX_PROFILE_SWITCHES = 5;
-
+        
         const loader = document.getElementById('loader');
 
         const getLoadingHTML = () => `<div class="loading-container"><div class="premium-loader-spinner"></div></div>`;
+
+        function getTodayDateString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
         window.onload = async () => {
             cycleReviewsOnLoader();
@@ -899,21 +935,9 @@
             const tgChatId = String(currentUserTg.id);
             const userRef = doc(db, "users", tgChatId);
             let userSnap = await getDoc(userRef);
-            const todayStr = new Date().toISOString().slice(0, 10);
 
             if (userSnap.exists()) {
                 userData = userSnap.data();
-                
-                // Reset daily profile switch count if it's a new day
-                if (!userData.profileSwitches || userData.profileSwitches.date !== todayStr) {
-                    await updateDoc(userRef, {
-                        'profileSwitches.date': todayStr,
-                        'profileSwitches.count': 0
-                    });
-                    // Re-fetch user data after updating
-                    userSnap = await getDoc(userRef);
-                    userData = userSnap.data();
-                }
                 
                 if (userData.isBlocked && userData.blockedUntil && userData.blockedUntil.toMillis() < Date.now()) {
                     await updateDoc(userRef, {
@@ -951,8 +975,11 @@
                     linkedBy: null, 
                     teamSpending: {},
                     lastSeen: serverTimestamp(),
-                    profileMode: 'personal', // NEW: Default profile mode
-                    profileSwitches: { date: todayStr, count: 0 } // NEW: Daily switch counter
+                    profileMode: 'personal',
+                    businessModeData: {
+                        lastPurchaseDate: null,
+                        dailyPurchaseTotal: 0
+                    }
                 };
                 await setDoc(userRef, userData);
             }
@@ -963,7 +990,7 @@
                 return;
             }
             
-            // Set current profile mode from user data
+            await checkBusinessModeStatus();
             currentProfileMode = userData.profileMode || 'personal';
 
             await fetchAppConfig();
@@ -973,11 +1000,67 @@
 
             loadSupportMenu();
             updateUI();
-            updateProfileSwitcherUI(); // NEW: Update switcher UI on load
+            updateProfileSwitcherUI();
             listenForNotifications();
             showMainPage('app-container');
             navigateTo('home-page');
         }
+
+        async function checkBusinessModeStatus() {
+            if (userData.profileMode !== 'business') return;
+
+            const todayStr = getTodayDateString();
+            const businessData = userData.businessModeData || { lastPurchaseDate: null, dailyPurchaseTotal: 0 };
+            const lastPurchaseDate = businessData.lastPurchaseDate;
+
+            // If there's a last purchase date and it's not today (i.e., it's a past day)
+            if (lastPurchaseDate && lastPurchaseDate !== todayStr) {
+                if (businessData.dailyPurchaseTotal < 20) {
+                    // Apply penalty
+                    const penalty = 5;
+                    if (userData.balance >= penalty) {
+                         const userRef = doc(db, "users", userData.tgChatId);
+                         await runTransaction(db, async (transaction) => {
+                             transaction.update(userRef, {
+                                 balance: increment(-penalty),
+                                 profileMode: 'personal',
+                                 'businessModeData.dailyPurchaseTotal': 0,
+                                 'businessModeData.lastPurchaseDate': todayStr
+                             });
+                         });
+                         userData.balance -= penalty;
+                         userData.profileMode = 'personal';
+                         showAlert(`আপনি গতকাল বিজনেস মোডের জন্য প্রয়োজনীয় ৳20 কেনাকাটা করেননি। ৳5 জরিমানা করা হয়েছে এবং আপনার মোড পার্সোনাল করা হয়েছে।`);
+                    } else {
+                         // Not enough balance for penalty, just switch mode
+                         const userRef = doc(db, "users", userData.tgChatId);
+                         await updateDoc(userRef, {
+                             profileMode: 'personal',
+                             'businessModeData.dailyPurchaseTotal': 0,
+                             'businessModeData.lastPurchaseDate': todayStr
+                         });
+                         userData.profileMode = 'personal';
+                         showAlert(`আপনি গতকাল বিজনেস মোডের জন্য প্রয়োজনীয় ৳20 কেনাকাটা করেননি। আপনার মোড পার্সোনাল করা হয়েছে।`);
+                    }
+                } else {
+                    // Requirement met, just reset for the new day
+                    const userRef = doc(db, "users", userData.tgChatId);
+                    await updateDoc(userRef, {
+                        'businessModeData.dailyPurchaseTotal': 0,
+                        'businessModeData.lastPurchaseDate': todayStr
+                    });
+                }
+                 // Re-fetch data to be sure
+                const userSnap = await getDoc(doc(db, "users", userData.tgChatId));
+                userData = userSnap.data();
+            } else if (!lastPurchaseDate) {
+                 // First day in business mode, set the date
+                 const userRef = doc(db, "users", userData.tgChatId);
+                 await updateDoc(userRef, {'businessModeData.lastPurchaseDate': todayStr});
+                 userData.businessModeData.lastPurchaseDate = todayStr;
+            }
+        }
+
 
         async function fetchAppConfig() {
             const configRef = doc(db, "config", "main");
@@ -1011,6 +1094,15 @@
             const balance = (userData.balance || 0).toFixed(2);
             document.getElementById('balance-display').textContent = `৳${balance}`;
             document.getElementById('header-balance-display').textContent = `৳${balance}`;
+            
+            // Toggle visibility of 'Copy All' button based on mode
+            const copyAllBtn = document.getElementById('copy-all-history-btn');
+            if(currentProfileMode === 'business') {
+                copyAllBtn.classList.remove('hidden');
+            } else {
+                copyAllBtn.classList.add('hidden');
+            }
+
             updateHeaderUI();
         }
 
@@ -1038,6 +1130,7 @@
                 'updates-page': () => { loadUpdates(); loadReviews(); },
                 'admin-page': () => { populateAdminMailTypes(); loadReplaceRequests(); },
                 'profile-page': loadProfilePage,
+                'bot-setting-page': updateProfileSwitcherUI,
                 'features-page': loadFeaturesPage,
                 'tutorial-page': loadTutorials,
                 'link-team-page': loadLinkedFriends,
@@ -1065,12 +1158,14 @@
             document.getElementById('add-mails-btn').addEventListener('click', handleAddMails);
             document.getElementById('download-history-btn').addEventListener('click', handleDownloadHistory);
             document.getElementById('copy-history-btn').addEventListener('click', handleCopyHistory);
+            document.getElementById('copy-all-history-btn').addEventListener('click', handleCopyAllHistory);
             document.getElementById('deposit-details-ok-btn').addEventListener('click', () => document.getElementById('deposit-details-modal').classList.add('hidden'));
             document.getElementById('hamburger-menu-btn').addEventListener('click', toggleMenu);
             document.getElementById('menu-overlay').addEventListener('click', toggleMenu);
             document.getElementById('go-to-support-btn').addEventListener('click', toggleMenu);
             
             document.getElementById('more-features-btn').addEventListener('click', handleFeaturesClick);
+            document.getElementById('bot-setting-btn').addEventListener('click', () => navigateTo('bot-setting-page'));
             
             document.getElementById('features-receive-btn').addEventListener('click', handleReceive);
             document.getElementById('features-send-btn').addEventListener('click', () => navigateTo('send-page'));
@@ -1093,8 +1188,7 @@
             document.getElementById('otp-mail-btn').addEventListener('click', () => switchMailView('otp'));
 
             document.getElementById('report-issue-form').addEventListener('submit', handleReportSubmit);
-
-            // NEW: Event listeners for profile switcher
+            
             document.getElementById('personal-mode-btn').addEventListener('click', () => handleProfileSwitch('personal'));
             document.getElementById('business-mode-btn').addEventListener('click', () => handleProfileSwitch('business'));
             document.getElementById('close-bulk-purchase-modal').addEventListener('click', () => document.getElementById('bulk-purchase-success-modal').classList.add('hidden'));
@@ -1218,7 +1312,6 @@
                 document.getElementById('profile-username').textContent = currentUserTg.username ? `@${currentUserTg.username}` : 'No Telegram Username';
                 document.getElementById('profile-id').textContent = `Telegram ID: ${currentUserTg.id}`;
             }
-            updateProfileSwitcherUI(); // Ensure switcher is correct when navigating to profile
         }
 
         async function handleDepositRequest() {
@@ -1280,7 +1373,6 @@
             } catch (error) { console.error(`Error getting stock count for ${collectionName}:`, error); return 0; }
         }
         
-        // [UPDATED] Mail rendering logic to handle profile modes
         async function renderMailList(mails, containerEl, effectiveBalance) {
             if (!mails || mails.length === 0) {
                 containerEl.innerHTML = `<p class="text-center text-gray-500 pt-10">এই ক্যাটাগরিতে কোনো মেইল উপলব্ধ নেই।</p>`;
@@ -1351,6 +1443,8 @@
             try {
                 const userSnap = await getDoc(doc(db, "users", userData.tgChatId));
                 userData = userSnap.data();
+                currentProfileMode = userData.profileMode || 'personal';
+                updateUI();
 
                 let effectiveBalance = userData.balance;
                 if (userData.linkedBy) {
@@ -1384,6 +1478,12 @@
 
                 const activePurchases = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => {
                     if (p.isRefunded) return false;
+                    
+                    if (p.type === 'bulk' && currentProfileMode === 'business') {
+                        const expiryTime = p.purchasedAt.toDate().getTime() + (10 * 3600000); // 10 hours
+                        if(Date.now() >= expiryTime) return false;
+                    }
+
                     if (p.expirationHours && p.purchasedAt) {
                         const expiryTime = p.purchasedAt.toDate().getTime() + (p.expirationHours * 3600000);
                         return Date.now() < expiryTime;
@@ -1397,23 +1497,36 @@
                     historyListEl.innerHTML = activePurchases.map(purchase => {
                         const date = purchase.purchasedAt.toDate().toLocaleString();
                         
-                        // Handle both single and bulk purchases for display
                         if (purchase.type === 'bulk' && purchase.mails) {
+                            const bulkMailsJson = encodeURIComponent(JSON.stringify(purchase.mails));
+                            const individualMailHtml = purchase.mails.map((mail, index) => {
+                                const mailJson = encodeURIComponent(JSON.stringify(mail));
+                                return `<div class="flex items-center justify-between bg-gray-50 p-2 rounded-md">
+                                    <span class="font-mono text-sm text-gray-800 truncate flex-1">${mail.email} | ${mail.password}</span>
+                                    <button onclick="copyIndividualBulk('${mailJson}')" class="ml-2 p-1.5 rounded-md hover:bg-gray-200"><i data-lucide="copy" class="w-4 h-4 text-gray-600"></i></button>
+                                </div>`;
+                            }).join('');
+
                             return `<div class="card-bg p-4 rounded-xl space-y-3">
-                                        <div class="flex justify-between items-start">
-                                            <div>
-                                                <h4 class="font-bold text-lg text-gray-800">${purchase.mailType} (Bulk)</h4>
-                                                <p class="text-xs text-gray-500">${date}</p>
-                                                <p class="text-sm font-semibold mt-1">Purchased: ${purchase.mails.length} mails</p>
-                                            </div>
-                                            <button onclick='downloadBulkPurchaseXLSX(${JSON.stringify(purchase.mails)})' class="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-md font-semibold hover:bg-green-200 flex items-center gap-1">
-                                                <i data-lucide="download" class="w-3 h-3"></i> Download
-                                            </button>
-                                        </div>
-                                    </div>`;
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h4 class="font-bold text-lg text-gray-800">${purchase.mailType} (Bulk)</h4>
+                                        <p class="text-xs text-gray-500">${date}</p>
+                                        <p class="text-sm font-semibold mt-1">Purchased: ${purchase.mails.length} mails</p>
+                                    </div>
+                                    <div class="flex flex-col items-end gap-2">
+                                        <button onclick="copyAllBulk('${bulkMailsJson}')" class="bg-blue-100 text-blue-700 text-xs px-3 py-1.5 rounded-md font-semibold hover:bg-blue-200 flex items-center gap-1">
+                                            <i data-lucide="copy-check" class="w-3 h-3"></i> Copy All
+                                        </button>
+                                        <button onclick='downloadBulkPurchaseXLSX(${JSON.stringify(purchase.mails)})' class="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-md font-semibold hover:bg-green-200 flex items-center gap-1">
+                                            <i data-lucide="download" class="w-3 h-3"></i> Download
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="space-y-2 pt-2 border-t max-h-48 overflow-y-auto">${individualMailHtml}</div>
+                            </div>`;
                         }
                         
-                        // Original single purchase display
                         const fullData = [purchase.mail, purchase.password, purchase.refreshToken, purchase.clientId].filter(Boolean).join('|');
                         const countdownHtml = purchase.expirationHours ? `<div class="text-xs text-red-500 font-semibold text-right mt-1" data-purchase-id="${purchase.id}" data-purchased-at="${purchase.purchasedAt.toMillis()}" data-expires-in-hours="${purchase.expirationHours}">Expires in: --:--:--</div>` : '';
                         
@@ -1511,6 +1624,39 @@
             finally { loader.style.display = 'none'; }
         }
 
+        async function handleCopyAllHistory() {
+            if (currentProfileMode !== 'business') return;
+            loader.style.display = 'flex';
+            try {
+                const tenHoursAgo = Timestamp.fromDate(new Date(Date.now() - 10 * 60 * 60 * 1000));
+                const q = query(collection(db, "mail_purchases"), where("userId", "==", userData.tgChatId), where("purchasedAt", ">=", tenHoursAgo), orderBy("purchasedAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.empty) {
+                    loader.style.display = 'none';
+                    return showAlert("গত ১০ ঘন্টায় কোনো কেনাকাটার ইতিহাস পাওয়া যায়নি।");
+                }
+                let fullHistory = [];
+                querySnapshot.docs.forEach(doc => {
+                    const p = doc.data();
+                    if (p.type === 'bulk' && p.mails) {
+                        p.mails.forEach(mail => {
+                           fullHistory.push([mail.email, mail.password, mail.refresh_token, mail.client_id].filter(Boolean).join('|'));
+                        });
+                    } else {
+                        fullHistory.push([p.mail, p.password, p.refreshToken, p.clientId].filter(Boolean).join('|'));
+                    }
+                });
+                
+                if (fullHistory.length > 0) {
+                    copyToClipboard(fullHistory.join('\n'), null, 'গত ১০ ঘণ্টার সব কেনাকাটার FULL DATA কপি করা হয়েছে!');
+                } else {
+                    showAlert("কোনো ডেটা কপি করার জন্য পাওয়া যায়নি।");
+                }
+            } catch (error) { showAlert("হিস্ট্রি কপি করার সময় একটি সমস্যা হয়েছে।"); console.error(error); }
+            finally { loader.style.display = 'none'; }
+        }
+
+
         window.buyMail = async function(mailType, costParam, stockKey) {
             const cost = parseFloat(costParam);
             if (!confirm(`আপনি কি ৳${cost.toFixed(2)} দিয়ে একটি ${mailType} কিনতে চান?`)) return;
@@ -1586,6 +1732,16 @@
                     });
                     
                     transaction.update(counterRef, { currentId: saleId + 1 });
+                    
+                    // Update business mode data if applicable
+                    if(currentBuyerData.profileMode === 'business') {
+                        const todayStr = getTodayDateString();
+                        const currentTotal = (currentBuyerData.businessModeData?.lastPurchaseDate === todayStr) ? (currentBuyerData.businessModeData.dailyPurchaseTotal || 0) : 0;
+                        transaction.update(buyerRef, {
+                            'businessModeData.lastPurchaseDate': todayStr,
+                            'businessModeData.dailyPurchaseTotal': currentTotal + cost
+                        });
+                    }
                 });
 
                 document.getElementById('purchase-success-email').textContent = mailData.email;
@@ -2098,13 +2254,12 @@
             }
         }
 
-        // --- NEW FUNCTIONS FOR PROFILE SWITCH AND BULK BUY ---
-
         function updateProfileSwitcherUI() {
             const personalBtn = document.getElementById('personal-mode-btn');
             const businessBtn = document.getElementById('business-mode-btn');
             const glider = document.querySelector('.profile-mode-switcher .glider');
-            const switchCountEl = document.getElementById('profile-switch-count');
+            
+            if (!personalBtn || !businessBtn || !glider) return;
 
             if (currentProfileMode === 'personal') {
                 personalBtn.style.color = '#007bff';
@@ -2115,35 +2270,33 @@
                 businessBtn.style.color = '#007bff';
                 glider.style.transform = 'translateX(100%)';
             }
-
-            const switchesUsed = userData.profileSwitches?.count || 0;
-            switchCountEl.textContent = `Today's switches left: ${MAX_PROFILE_SWITCHES - switchesUsed}`;
         }
 
         async function handleProfileSwitch(newMode) {
             if (newMode === currentProfileMode) return;
-            
-            const switchesUsed = userData.profileSwitches?.count || 0;
-            if (switchesUsed >= MAX_PROFILE_SWITCHES) {
-                return showAlert(`You have reached the daily limit of ${MAX_PROFILE_SWITCHES} profile switches.`);
+
+            if (newMode === 'business') {
+                if (userData.balance < 80) {
+                    return showAlert(`বিজনেস মোড চালু করতে আপনার অ্যাকাউন্টে কমপক্ষে ৳80 থাকতে হবে। আপনার বর্তমান ব্যালেন্স ৳${userData.balance.toFixed(2)}।`);
+                }
             }
 
             loader.style.display = 'flex';
             try {
                 const userRef = doc(db, "users", userData.tgChatId);
+                const todayStr = getTodayDateString();
                 await updateDoc(userRef, {
                     profileMode: newMode,
-                    'profileSwitches.count': increment(1)
+                    'businessModeData.lastPurchaseDate': todayStr,
+                    'businessModeData.dailyPurchaseTotal': 0
                 });
                 
-                // Update local data
                 userData.profileMode = newMode;
-                userData.profileSwitches.count += 1;
                 currentProfileMode = newMode;
 
                 updateProfileSwitcherUI();
+                updateUI();
                 
-                // Refresh mail store if currently on that page
                 if (document.getElementById('mail-page').classList.contains('active')) {
                     await loadMailStore();
                 }
@@ -2187,13 +2340,6 @@
             loader.style.display = 'flex';
             
             try {
-                const mailQuery = query(collection(db, stockKey), where("isSold", "==", false), limit(quantity));
-                const mailQuerySnapshot = await getDocs(mailQuery);
-
-                if (mailQuerySnapshot.docs.length < quantity) {
-                    throw new Error(`Not enough stock. Only ${mailQuerySnapshot.docs.length} mails available.`);
-                }
-                
                 let purchasedMailsData = [];
 
                 await runTransaction(db, async (transaction) => {
@@ -2204,7 +2350,6 @@
                     const currentBuyerData = buyerSnap.data();
                     let effectiveBalance = currentBuyerData.balance;
                     
-                    // Team balance logic
                     let teamLeaderRef = null;
                     let currentLeaderData = null;
                     if (currentBuyerData.linkedBy) {
@@ -2218,6 +2363,13 @@
                     
                     if (effectiveBalance < totalCost) {
                         throw new Error("Insufficient balance for this bulk purchase.");
+                    }
+                    
+                    const mailQuery = query(collection(db, stockKey), where("isSold", "==", false), limit(quantity));
+                    const mailQuerySnapshot = await getDocs(mailQuery);
+
+                    if (mailQuerySnapshot.docs.length < quantity) {
+                        throw new Error(`Not enough stock. Only ${mailQuerySnapshot.docs.length} mails available.`);
                     }
 
                     // Deduct balance
@@ -2233,7 +2385,6 @@
                     }
 
                     // Mark mails as sold
-                    const batch = writeBatch(db);
                     mailQuerySnapshot.docs.forEach(mailDoc => {
                         const mailData = mailDoc.data();
                         purchasedMailsData.push({
@@ -2242,9 +2393,8 @@
                             refresh_token: mailData.refresh_token || null,
                             client_id: mailData.client_id || null
                         });
-                        batch.update(doc(db, stockKey, mailDoc.id), { isSold: true, soldTo: userData.tgChatId, soldAt: serverTimestamp() });
+                        transaction.update(doc(db, stockKey, mailDoc.id), { isSold: true, soldTo: userData.tgChatId, soldAt: serverTimestamp() });
                     });
-                    await batch.commit();
 
                     // Create one purchase log for the bulk transaction
                     const purchaseLogRef = doc(collection(db, "mail_purchases"));
@@ -2255,6 +2405,16 @@
                         quantity: quantity,
                         purchasedAt: serverTimestamp()
                     });
+
+                    // Update business mode data
+                    if(currentBuyerData.profileMode === 'business') {
+                        const todayStr = getTodayDateString();
+                        const currentTotal = (currentBuyerData.businessModeData?.lastPurchaseDate === todayStr) ? (currentBuyerData.businessModeData.dailyPurchaseTotal || 0) : 0;
+                        transaction.update(buyerRef, {
+                            'businessModeData.lastPurchaseDate': todayStr,
+                            'businessModeData.dailyPurchaseTotal': currentTotal + totalCost
+                        });
+                    }
                 });
 
                 showBulkPurchaseSuccess(purchasedMailsData, mailType);
@@ -2283,7 +2443,6 @@
             ).join('');
             
             const downloadBtn = document.getElementById('download-bulk-xlsx-btn');
-            // Clone and replace to remove old event listeners
             const newBtn = downloadBtn.cloneNode(true);
             downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
             newBtn.addEventListener('click', () => downloadBulkPurchaseXLSX(mails));
@@ -2298,7 +2457,7 @@
                     return { 
                         'Email': p.email, 
                         'Password': p.password || 'N/A', 
-                        'Full Data': [p.email,p.password,p.refresh_token,p.client_id].filter(Boolean).join('/') 
+                        'Full Data': [p.email,p.password,p.refresh_token,p.client_id].filter(Boolean).join('|') 
                     }; 
                 });
                 const ws = XLSX.utils.json_to_sheet(dataForExcel);
@@ -2311,6 +2470,18 @@
                 console.error("XLSX export error:", error);
             }
         };
+
+        window.copyAllBulk = function(encodedMailsJson) {
+            const mails = JSON.parse(decodeURIComponent(encodedMailsJson));
+            const textToCopy = mails.map(m => [m.email, m.password, m.refresh_token, m.client_id].filter(Boolean).join('|')).join('\n');
+            copyToClipboard(textToCopy, null, 'সব মেইলের তথ্য কপি করা হয়েছে!');
+        }
+
+        window.copyIndividualBulk = function(encodedMailJson) {
+            const mail = JSON.parse(decodeURIComponent(encodedMailJson));
+            const textToCopy = [mail.email, mail.password, mail.refresh_token, mail.client_id].filter(Boolean).join('|');
+            copyToClipboard(textToCopy, null, 'মেইলের তথ্য কপি করা হয়েছে!');
+        }
 
     </script>
 </body>
