@@ -581,11 +581,8 @@
 
                 <div id="business-mode-rules" class="card-bg p-5 rounded-xl space-y-3 bg-blue-50 border-blue-200">
                     <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2"><i data-lucide="info" class="w-5 h-5 text-blue-600"></i>Business Mode Rules</h3>
-                    <ul class="list-disc list-inside text-gray-700 text-sm space-y-2">
-                        <li>বিজনেস মোড চালু করতে আপনার অ্যাকাউন্টে কমপক্ষে <span class="font-bold text-blue-600">৳80</span> থাকতে হবে।</li>
-                        <li>এই মোড فعال রাখতে, আপনাকে প্রতিদিন কমপক্ষে <span class="font-bold text-blue-600">৳20</span> মূল্যের মেইল কিনতে হবে।</li>
-                        <li>যদি একদিনও ৳20-র কেনাকাটা না করেন, তবে আপনার অ্যাকাউন্ট থেকে <span class="font-bold text-red-600">৳5</span> কেটে নেওয়া হবে এবং মোড স্বয়ংক্রিয়ভাবে পার্সোনাল হয়ে যাবে।</li>
-                        <li>বিজনেস মোডে আপনি একসাথে সব হিস্ট্রি কপি করার মতো বিশেষ সুবিধা পাবেন।</li>
+                    <ul id="business-mode-rules-list" class="list-disc list-inside text-gray-700 text-sm space-y-2">
+                        <!-- Rules will be populated by JavaScript -->
                     </ul>
                 </div>
             </div>
@@ -990,10 +987,12 @@
                 return;
             }
             
+            await fetchAppConfig();
+            updateUIFromConfig(); // <-- NEW: Update UI with Firebase config
+
             await checkBusinessModeStatus();
             currentProfileMode = userData.profileMode || 'personal';
 
-            await fetchAppConfig();
             if (tgChatId === ADMIN_UID) {
                 document.getElementById('admin-nav-link').classList.remove('hidden');
             }
@@ -1009,15 +1008,15 @@
         async function checkBusinessModeStatus() {
             if (userData.profileMode !== 'business') return;
 
+            const dailyReq = appConfig.businessModeDailyReq || 20;
+            const penalty = appConfig.businessModePenalty || 5;
+
             const todayStr = getTodayDateString();
             const businessData = userData.businessModeData || { lastPurchaseDate: null, dailyPurchaseTotal: 0 };
             const lastPurchaseDate = businessData.lastPurchaseDate;
 
-            // If there's a last purchase date and it's not today (i.e., it's a past day)
             if (lastPurchaseDate && lastPurchaseDate !== todayStr) {
-                if (businessData.dailyPurchaseTotal < 20) {
-                    // Apply penalty
-                    const penalty = 5;
+                if (businessData.dailyPurchaseTotal < dailyReq) {
                     if (userData.balance >= penalty) {
                          const userRef = doc(db, "users", userData.tgChatId);
                          await runTransaction(db, async (transaction) => {
@@ -1030,9 +1029,8 @@
                          });
                          userData.balance -= penalty;
                          userData.profileMode = 'personal';
-                         showAlert(`আপনি গতকাল বিজনেস মোডের জন্য প্রয়োজনীয় ৳20 কেনাকাটা করেননি। ৳5 জরিমানা করা হয়েছে এবং আপনার মোড পার্সোনাল করা হয়েছে।`);
+                         showAlert(`আপনি গতকাল বিজনেস মোডের জন্য প্রয়োজনীয় ৳${dailyReq} কেনাকাটা করেননি। ৳${penalty} জরিমানা করা হয়েছে এবং আপনার মোড পার্সোনাল করা হয়েছে।`);
                     } else {
-                         // Not enough balance for penalty, just switch mode
                          const userRef = doc(db, "users", userData.tgChatId);
                          await updateDoc(userRef, {
                              profileMode: 'personal',
@@ -1040,21 +1038,18 @@
                              'businessModeData.lastPurchaseDate': todayStr
                          });
                          userData.profileMode = 'personal';
-                         showAlert(`আপনি গতকাল বিজনেস মোডের জন্য প্রয়োজনীয় ৳20 কেনাকাটা করেননি। আপনার মোড পার্সোনাল করা হয়েছে।`);
+                         showAlert(`আপনি গতকাল বিজনেস মোডের জন্য প্রয়োজনীয় ৳${dailyReq} কেনাকাটা করেননি। আপনার মোড পার্সোনাল করা হয়েছে।`);
                     }
                 } else {
-                    // Requirement met, just reset for the new day
                     const userRef = doc(db, "users", userData.tgChatId);
                     await updateDoc(userRef, {
                         'businessModeData.dailyPurchaseTotal': 0,
                         'businessModeData.lastPurchaseDate': todayStr
                     });
                 }
-                 // Re-fetch data to be sure
                 const userSnap = await getDoc(doc(db, "users", userData.tgChatId));
                 userData = userSnap.data();
             } else if (!lastPurchaseDate) {
-                 // First day in business mode, set the date
                  const userRef = doc(db, "users", userData.tgChatId);
                  await updateDoc(userRef, {'businessModeData.lastPurchaseDate': todayStr});
                  userData.businessModeData.lastPurchaseDate = todayStr;
@@ -1065,7 +1060,31 @@
         async function fetchAppConfig() {
             const configRef = doc(db, "config", "main");
             const configSnap = await getDoc(configRef);
-            appConfig = configSnap.exists() ? configSnap.data() : { mails: [] };
+            const defaults = {
+                mails: [],
+                minDeposit: 50,
+                businessDiscountPercent: 1, // 1% discount
+                businessModeMinBalance: 80,
+                businessModeDailyReq: 20,
+                businessModePenalty: 5
+            };
+            appConfig = configSnap.exists() ? { ...defaults, ...configSnap.data() } : defaults;
+        }
+
+        function updateUIFromConfig() {
+            const rulesEl = document.getElementById('business-mode-rules-list');
+            if (rulesEl && appConfig) {
+                rulesEl.innerHTML = `
+                    <li>বিজনেস মোড চালু করতে আপনার অ্যাকাউন্টে কমপক্ষে <span class="font-bold text-blue-600">৳${appConfig.businessModeMinBalance}</span> থাকতে হবে।</li>
+                    <li>এই মোড فعال রাখতে, আপনাকে প্রতিদিন কমপক্ষে <span class="font-bold text-blue-600">৳${appConfig.businessModeDailyReq}</span> মূল্যের মেইল কিনতে হবে।</li>
+                    <li>যদি একদিনও ৳${appConfig.businessModeDailyReq}-র কেনাকাটা না করেন, তবে আপনার অ্যাকাউন্ট থেকে <span class="font-bold text-red-600">৳${appConfig.businessModePenalty}</span> কেটে নেওয়া হবে এবং মোড স্বয়ংক্রিয়ভাবে পার্সোনাল হয়ে যাবে।</li>
+                    <li>বিজনেস মোডে আপনি বিশেষ মূল্যছাড় এবং একসাথে সব হিস্ট্রি কপি করার মতো সুবিধা পাবেন।</li>
+                `;
+            }
+            const depositAmountInput = document.getElementById('deposit-amount');
+            if (depositAmountInput) {
+                depositAmountInput.placeholder = `e.g., 100 (min ৳${appConfig.minDeposit || 50})`;
+            }
         }
         
         function updateHeaderUI() {
@@ -1095,7 +1114,6 @@
             document.getElementById('balance-display').textContent = `৳${balance}`;
             document.getElementById('header-balance-display').textContent = `৳${balance}`;
             
-            // Toggle visibility of 'Copy All' button based on mode
             const copyAllBtn = document.getElementById('copy-all-history-btn');
             if(currentProfileMode === 'business') {
                 copyAllBtn.classList.remove('hidden');
@@ -1319,7 +1337,11 @@
             const amount = parseInt(document.getElementById('deposit-amount').value);
             const senderNumber = document.getElementById('sender-number').value.trim();
             const transactionId = document.getElementById('deposit-txid').value.trim();
-            if (!method || !amount || amount <= 0 || !senderNumber || !transactionId) return showAlert("অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন।");
+            const minDeposit = appConfig.minDeposit || 50;
+
+            if (!method || !amount || amount < minDeposit || !senderNumber || !transactionId) {
+                return showAlert(`অনুগ্রহ করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন। সর্বনিম্ন ডিপোজিট ৳${minDeposit}।`);
+            }
 
             loader.style.opacity = '1';
             loader.style.display = 'flex';
@@ -1384,8 +1406,12 @@
             let mailsWithStock = mails.map((mail, index) => ({ ...mail, stock: stockCounts[index] })).sort((a, b) => b.stock - a.stock);
 
             containerEl.innerHTML = mailsWithStock.map(mail => {
-                const displayPrice = currentProfileMode === 'business' ? Math.max(0.01, mail.priceBdt - 0.01) : mail.priceBdt;
-                const isOutOfStock = mail.stock < (currentProfileMode === 'business' ? 5 : 1);
+                const discountPercent = appConfig.businessDiscountPercent || 0;
+                const displayPrice = currentProfileMode === 'business' 
+                    ? (mail.priceBdt * (1 - discountPercent / 100)) 
+                    : mail.priceBdt;
+
+                const isOutOfStock = mail.stock < 1;
                 const insufficientBalance = effectiveBalance < displayPrice;
                 const buyButtonDisabled = isOutOfStock || (insufficientBalance && currentProfileMode === 'personal');
                 
@@ -1400,9 +1426,9 @@
                 const businessBuySection = `
                     <div class="flex items-center gap-2">
                         <div class="flex-grow flex items-center border border-gray-300 rounded-lg">
-                            <button onclick="updateQty('${mail.stockKey}', -1)" class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-l-lg">-</button>
-                            <input id="qty-${mail.stockKey}" type="number" min="5" max="20" value="5" class="w-full text-center font-bold border-l border-r bg-white" onchange="validateQty(this)">
-                            <button onclick="updateQty('${mail.stockKey}', 1)" class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-r-lg">+</button>
+                            <button onclick="updateQty('${mail.stockKey}', -1, ${mail.stock})" class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-l-lg">-</button>
+                            <input id="qty-${mail.stockKey}" type="number" min="1" max="${mail.stock}" value="1" class="w-full text-center font-bold border-l border-r bg-white" onchange="validateQty(this, ${mail.stock})">
+                            <button onclick="updateQty('${mail.stockKey}', 1, ${mail.stock})" class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-r-lg">+</button>
                         </div>
                         <button class="btn-gradient w-auto px-6 py-2 rounded-lg text-md flex-shrink-0" ${isOutOfStock ? 'disabled' : ''} onclick="handleBulkBuy('${mail.type}', ${mail.priceBdt}, '${mail.stockKey}')">Buy</button>
                     </div>
@@ -1478,18 +1504,23 @@
 
                 const activePurchases = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => {
                     if (p.isRefunded) return false;
-                    
-                    if (p.type === 'bulk' && currentProfileMode === 'business') {
-                        const expiryTime = p.purchasedAt.toDate().getTime() + (10 * 3600000); // 10 hours
-                        if(Date.now() >= expiryTime) return false;
-                    }
 
-                    if (p.expirationHours && p.purchasedAt) {
+                    // Business mode bulk purchases expire after 10 hours
+                    if (p.type === 'bulk' && p.purchasedAt) {
+                        const expiryTime = p.purchasedAt.toDate().getTime() + (10 * 3600000); // 10 hours
+                        return Date.now() < expiryTime;
+                    }
+                    
+                    // Single purchases with specific expiration hours
+                    if (p.type !== 'bulk' && p.expirationHours && p.purchasedAt) {
                         const expiryTime = p.purchasedAt.toDate().getTime() + (p.expirationHours * 3600000);
                         return Date.now() < expiryTime;
                     }
-                    return true;
+                    
+                    // If no expiry conditions are met, it's a permanent single purchase
+                    return true; 
                 });
+
 
                 if(activePurchases.length === 0) {
                     historyListEl.innerHTML = '<p class="text-center text-gray-600">আপনার কোনো সক্রিয় কেনা মেইল নেই।</p>';
@@ -1506,6 +1537,8 @@
                                     <button onclick="copyIndividualBulk('${mailJson}')" class="ml-2 p-1.5 rounded-md hover:bg-gray-200"><i data-lucide="copy" class="w-4 h-4 text-gray-600"></i></button>
                                 </div>`;
                             }).join('');
+
+                             const countdownHtml = `<div class="text-xs text-red-500 font-semibold text-right mt-1" data-purchase-id="${purchase.id}" data-purchased-at="${purchase.purchasedAt.toMillis()}" data-expires-in-hours="10">Expires in: --:--:--</div>`;
 
                             return `<div class="card-bg p-4 rounded-xl space-y-3">
                                 <div class="flex justify-between items-start">
@@ -1524,6 +1557,7 @@
                                     </div>
                                 </div>
                                 <div class="space-y-2 pt-2 border-t max-h-48 overflow-y-auto">${individualMailHtml}</div>
+                                ${countdownHtml}
                             </div>`;
                         }
                         
@@ -1733,7 +1767,6 @@
                     
                     transaction.update(counterRef, { currentId: saleId + 1 });
                     
-                    // Update business mode data if applicable
                     if(currentBuyerData.profileMode === 'business') {
                         const todayStr = getTodayDateString();
                         const currentTotal = (currentBuyerData.businessModeData?.lastPurchaseDate === todayStr) ? (currentBuyerData.businessModeData.dailyPurchaseTotal || 0) : 0;
@@ -2276,8 +2309,9 @@
             if (newMode === currentProfileMode) return;
 
             if (newMode === 'business') {
-                if (userData.balance < 80) {
-                    return showAlert(`বিজনেস মোড চালু করতে আপনার অ্যাকাউন্টে কমপক্ষে ৳80 থাকতে হবে। আপনার বর্তমান ব্যালেন্স ৳${userData.balance.toFixed(2)}।`);
+                const minBalance = appConfig.businessModeMinBalance || 80;
+                if (userData.balance < minBalance) {
+                    return showAlert(`বিজনেস মোড চালু করতে আপনার অ্যাকাউন্টে কমপক্ষে ৳${minBalance} থাকতে হবে। আপনার বর্তমান ব্যালেন্স ৳${userData.balance.toFixed(2)}।`);
                 }
             }
 
@@ -2309,30 +2343,31 @@
             }
         }
         
-        window.updateQty = (stockKey, delta) => {
+        window.updateQty = (stockKey, delta, maxStock) => {
             const input = document.getElementById(`qty-${stockKey}`);
             let currentValue = parseInt(input.value, 10);
             currentValue += delta;
-            if (currentValue < 5) currentValue = 5;
-            if (currentValue > 20) currentValue = 20;
+            if (currentValue < 1) currentValue = 1;
+            if (currentValue > maxStock) currentValue = maxStock;
             input.value = currentValue;
         };
 
-        window.validateQty = (input) => {
+        window.validateQty = (input, maxStock) => {
             let value = parseInt(input.value, 10);
-            if (isNaN(value) || value < 5) input.value = 5;
-            if (value > 20) input.value = 20;
+            if (isNaN(value) || value < 1) input.value = 1;
+            if (value > maxStock) input.value = maxStock;
         };
         
         window.handleBulkBuy = async function(mailType, originalPrice, stockKey) {
             const quantityInput = document.getElementById(`qty-${stockKey}`);
             const quantity = parseInt(quantityInput.value, 10);
             
-            if (isNaN(quantity) || quantity < 5 || quantity > 20) {
-                return showAlert("Please enter a quantity between 5 and 20.");
+            if (isNaN(quantity) || quantity < 1) {
+                return showAlert("Please enter a valid quantity of at least 1.");
             }
-
-            const singlePrice = Math.max(0.01, originalPrice - 0.01);
+            
+            const discountPercent = appConfig.businessDiscountPercent || 0;
+            const singlePrice = originalPrice * (1 - discountPercent / 100);
             const totalCost = quantity * singlePrice;
             
             if (!confirm(`Buy ${quantity} x ${mailType} mails for a total of ৳${totalCost.toFixed(2)}?`)) return;
